@@ -1,3 +1,90 @@
-\chapter{综合分析和扩展方案} % Main chapter title
-
 \label{Chapter5} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+\chapter{扩展方案} % Main chapter title
+\section{目标问题}
+上述提到给予RISC-V中PMP设计的KeyStone存在PMP寄存器不足的问题，
+如(图~\ref{fig:pmpcfg}), 在RV64的模式下有2个pmpcfg寄存器pmpcfg0和pmpcfg2，
+包含了可以指明解析方案的16个8个bits组成的pmpxcfg寄存器，即pmp0cfg-pmp15cfg。
+在一些场景下仅仅这16个权限寄存器可能并不足够。为了在不改变原始硬件的情况下，
+增加可用的PMP寄存器范围，可以给出PMP寄存器的扩展方案。
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.30]{Figures/extend/pmpcfg.png}
+    \decoRule
+    \caption{pmpcfg寄存器}
+    \label{fig:pmpcfg}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.30]{Figures/extend/addrformat.png}
+    \decoRule
+    \caption{地址寄存器格式}
+    \label{fig:addrformat}
+\end{figure}
+
+\section{扩展思路}
+原始的PMP是通过Monitor来配置Machine Code用来保护Monitor最基本的物理地址空间。
+为了扩大保护的范围，可以考虑当一个Kernel已经进入了由PMP寄存器保护的物理内存之后，即附属在一个hart上后，
+可以借用原来的寄存器在Kernel层再做一次映射，以此从物理上在同一个kernel中隔离更多的空间。
+当一个用户端的App从U状态下进行向下寻址后，
+可以先由PMA检查和原始PMP检查对其进行校验，在通过之后，可以再使用Kernel层上的扩展隔离，
+以此达到进一步划分物理空间和App所属的地址隔离问题，CFG基址寄存器如(图~\ref{fig:addrformat})。
+
+\subsection{实际扩展}
+具体的扩展方案，可以通过一个线程在某一Kernel由PMP分配的物理空间之后，即hart运行在U模式下时，
+可以将PMP寄存器进行重置和复用，可以通过U模式下重置，可以在U模式下用和PMP相同的策略进一步划分内存。
+首先hart进入U模式，Machine Code将原始PMP寄存器的值保存至Security Monitor中，
+之后使用Kernel自己的策略重置PMP寄存器，进行地址的划分和隔离。
+当离开U模式时，Machine Code也会恢复原来存储在Security Monitor中的寄存器的值。
+
+
+
+\subsection{扩展格式}
+在U模式下的扩展采用原有PMP的隔离策略，并在异常等方面做降级处理。
+仍然采用如(图~\ref{fig:pmpcfg})的方式，使用pmpcfg0和pmpfcg2寄存器存储pmp0cfg到pmp15cfg的值，来划分权限，使用PMP地址寄存器来存储地址划分的基础地址。
+CFG的格式和原始PMP积寄存器CFG基本一致，如(图~\ref{fig:cfgformat})，X位，W位和R位分别表示可读可写和可执行的权限。
+A位表示寻址策略，如(图~\ref{fig:afield})所示，当A的值为0时，表示此扩展禁用不匹配任何地址。当A=1时采用TOR分配到地址空间的上界。
+当A=2时采用NA4策略，分配4byte对齐的空间。
+当A=3时采用NAPOT策略，即分配一个对其且大小为2的整数幂的空间，在这种模式下最小分配地址为8bytes。
+划分地址空间的结果(图~\ref{fig:address})
+L位代表着对新的PMP扩展进行上锁。以上的权限只在U模式下生效，原来的M模式仍然可以正常的访问内存，
+且可以重置和解锁扩展PMP的L位。
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.30]{Figures/extend/cfgformat.png}
+    \decoRule
+    \caption{CFG格式}
+    \label{fig:cfgformat}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.40]{Figures/extend/afield.png}
+    \decoRule
+    \caption{A位取值}
+    \label{fig:afield}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.40]{Figures/extend/address.png}
+    \decoRule
+    \caption{地址空间划分}
+    \label{fig:address}
+\end{figure}
+
+\subsection{权限和异常}
+扩展的PMP只会在寻址已经通过了原来PMP的检查之后才会进行。
+原始的PMP会通过最低位表示一次访问存储的成功或者失败。
+首先PMP会检测其访问的地址是否在访问范围内，如果在不在访问范围内，则直接将结果设置为失败。
+若在访问范围内，则根据实际的读写执行权限进行判定。
+若访问失败，则会出现一个指令访问异常。
+和原始PMP类似扩展的PMP也使用最低位来表示访存的失败，在原来PMP的检查之后，U模式下仍然会先检查方寸是否在扩展PMP规定的范围内，
+这次检查相比于原始PMP的检查具有更细的粒度。在检查通过之后，仍然会根据读写执行权限进行判定，
+若访问失败，会产生出一个页错误，这个错误可以交给U模式下kernel自己处理，也可以让更高层的Machine Code进行处理。
+
+
+\section{场景分析}
+\subsection{适用场景}
+\subsection{不适用场景}
+
+\section{小结}

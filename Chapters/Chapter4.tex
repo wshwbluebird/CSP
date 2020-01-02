@@ -40,11 +40,14 @@ Keystone假设有以下这些攻击者：
 \paragraph{内存隔离}
 Keystone使用RISC-V架构提供的PMP (Physical Memory Protection) 来进行内存保护。
 PMP通过定义相应的PMP region来限制User-mode和Supervisor-mode的内存访问。
-RISC-V架构拥有16个pmpaddr寄存器和4个pmpcfg寄存器，pmpaddr寄存器用来存放相应region的地址（物理地址），pmpcfg寄存器用来定义访存权限、region区间对齐方式以及是否锁定该region.
+RISC-V架构拥有16个pmpaddr寄存器和4个pmpcfg寄存器，pmpaddr寄存器用来存放相应region的地址（物理地址），
+pmpcfg寄存器用来定义访存权限、region区间对齐方式以及是否锁定该region.
 \paragraph{通过Secure Monitor加强内存隔离}
 在RISC-V架构中，存在Machine-mode这一高于Supervisor-mode的特权级，Secure Monitor便运行在这一模式。
-在CPU将控制转移给enclave时，Secure Monitor会enable当前要执行的enclave的PMP permission bits. 并disable OS拥有的所有PMP的permission bits，以此来保证enclave只能访问自己的region.
-在CPU从enclave退出时，Secure Monitor会disable enclave的PMP permission bits，并enable OS的PMP permission bits.
+在CPU将控制转移给enclave时，Secure Monitor会enable当前要执行的enclave的PMP permission bits. 
+并disable OS拥有的所有PMP的permission bits，以此来保证enclave只能访问自己的region.
+在CPU从enclave退出时，Secure Monitor会disable enclave的PMP permission bits，
+并enable OS的PMP permission bits.
 Secure Monitor的这些操作，在更高的权限级（M-mode)保证了PMP的安全性。
 
 \subsection{能够预防的具体攻击}
@@ -81,7 +84,9 @@ Secure Monitor的这些操作，在更高的权限级（M-mode)保证了PMP的�
 \section{不足}
 \begin{itemize}
 	\item [1)]
-	Keystone PMP寄存器的数量只有16个，还要分配一部分来保护Secure Monitor以及供OS正常访存使用。这样一来，可以用来给enclave使用的PMP寄存器就更少了。
+	Keystone PMP寄存器的数量只有16个，
+	还要分配一部分来保护Secure Monitor以及供OS正常访存使用。
+	这样一来，可以用来给enclave使用的PMP寄存器就更少了。
 	\item [2)]
 	Keystone不能防御DoS攻击，因为其还是需要一个正常运行的OS（配页表、syscall等），恶意的OS可以拒绝服务用户。而Keystone没有修改OS，所以不能防御DoS攻击。
 \end{itemize}
