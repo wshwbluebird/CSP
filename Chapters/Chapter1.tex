@@ -42,7 +42,14 @@ TEE 的出现正能回答这个问题。
 %--------------------------------------
 \subsection{ARM TrustZone}
 %--------------------------------------
-TODO
+\paragraph{Normal World 和 Secure World}TrustZone通过TrustedFirmware这一硬件扩展，
+将计算机资源划分为安全世界与普通世界。
+同时带来与Intel不同的 EL0-EL3 这4个特权等级，
+EL3被称为 monitor mode，
+只有monitor mode 可以通过运行 ARM Trusted Firmware 来切换普通世界与安全世界。
+一台有 TrustZone 的机器，
+会经过安全的 bootloader 校验并启动安全世界中的操作系统，
+而后，再切换到不可信的普通世界去执行。
 %--------------------------------------
 \subsection{Graphene-SGX}
 %--------------------------------------
@@ -50,6 +57,25 @@ TODO
 用户态应用程序可以部分或全部的放入 enclave执行，SGX技术可以保证，
 在enclave中执行的程序不会被恶意的操作系统或恶意的Hypervisor攻击，
 且数据不会泄露。
+\paragraph{Haven}不过，
+应用程序适配 SGX是一个挑战。
+由于安全性的考虑，
+encalve中的程序有一些操作不被允许（例如不能使用syscall），
+因此，已有的应用程序想要利用 SGX 带来的安全性，
+需要付出大量的重构努力。
+OSDI 14 的一个叫 Haven 的工作,提出了带壳执行，证明了
+可以将一个已有的二进制应用程序，
+通过 libOS 的方式，整个放到enclave中执行。
+通过对libOS的API实现进行修改，将底层实现缩小到更少的系统调用，
+减少了攻击面。
+再对这些与enclave外不受信任的操作系统或 hypervisor 沟通的方法进行校验。
+保证出入enclave的控制流的可靠性，并对传输数据进行加密，
+已有的应用程序就可以通过把整个二进制放入enclave中的方式利用SGX技术提供的安全性。
+\paragraph{Graphene-SGX}Graphene-SGX在 Haven的基础上更进一步，
+实现了enclave的安全fork与可信通信，
+极大的提高了现有应用利用SGX技术时的可扩展性。
+同时，由于硬件的发展，Graphene-SGX的测试还证明了
+libOS化的应用程序放入enclave中所带来的开销是可以接受的。
 
 %----------------------------------------------------------------------------------------
 \subsection{RISC-V KeyStone}
