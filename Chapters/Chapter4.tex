@@ -5,7 +5,9 @@
 \label{Chapter4} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
 
 \section{Introduction}
-Keystone基于RISCV指令集架构，是第一个构建定制TEE的开源框架。Keystone使用了基于硬件的简单抽象，如内存隔离和在不可信部件（如OS）之下的可编程层。Keystone从这些抽象中构建可重用的TEE核心原语，同时允许特定于平台的修改和应用程序特性。
+Keystone\cite{keystone-p1}基于RISCV\cite{keystone-p2}指令集架构，是第一个构建定制TEE的开源框架。
+Keystone使用了基于硬件的简单抽象，如内存隔离和在不可信部件（如OS）之下的可编程层。
+Keystone从这些抽象中构建可重用的TEE核心原语，同时允许特定于平台的修改和应用程序特性。
 
 \section{威胁模型}
 Keystone信任以下部分：
@@ -38,16 +40,16 @@ Keystone假设有以下这些攻击者：
 \section{保证的安全性质和能够防御的一些具体攻击}
 \subsection{安全保证}
 \paragraph{内存隔离}
-Keystone使用RISC-V架构提供的PMP (Physical Memory Protection) 来进行内存保护。
+Keystone使用RISC-V架构提供的PMP (Physical Memory Protection) 来进行内存保护\cite{keystone-p4}。
 PMP通过定义相应的PMP region来限制User-mode和Supervisor-mode的内存访问。
 RISC-V架构拥有16个pmpaddr寄存器和4个pmpcfg寄存器，pmpaddr寄存器用来存放相应region的地址（物理地址），
 pmpcfg寄存器用来定义访存权限、region区间对齐方式以及是否锁定该region.
 \paragraph{通过Secure Monitor加强内存隔离}
 在RISC-V架构中，存在Machine-mode这一高于Supervisor-mode的特权级，Secure Monitor便运行在这一模式。
-在CPU将控制转移给enclave时，Secure Monitor会enable当前要执行的enclave的PMP permission bits. 
+在CPU将控制转移给enclave时，Secure Monitor会enable当前要执行的enclave的PMP permission bits\cite{keystone-p3}. 
 并disable OS拥有的所有PMP的permission bits，以此来保证enclave只能访问自己的region.
 在CPU从enclave退出时，Secure Monitor会disable enclave的PMP permission bits，
-并enable OS的PMP permission bits.
+并enable OS的PMP permission bits\cite{keystone-p4}.
 Secure Monitor的这些操作，在更高的权限级（M-mode)保证了PMP的安全性。
 
 \subsection{能够预防的具体攻击}
@@ -58,7 +60,7 @@ Secure Monitor的这些操作，在更高的权限级（M-mode)保证了PMP的�
 	\item [2)]
 	\textbf{Syscall Tampering Attaks} Enclave调用syscall可能会受到Syscall Tampering Attack，Keystone可以将已有的防御措施（如SCONE、Graphene等）作为Plugin来防御这些攻击。
 	\item [3)]
-	\textbf{Side-channel Attacks} Keystone提供cache partitioning，可以防止Side-channel Attacks.
+	\textbf{Side-channel Attacks} Keystone提供cache partitioning，可以防止Side-channel Attacks\cite{sanctuary-p3}.
 \end{itemize}
 
 \section{性能、可扩展性（scalability）、灵活性等分析}

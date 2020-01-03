@@ -19,12 +19,12 @@
 \section{Arm TrustZone}
 
 \subsection{基本介绍} 
-TrustZone是一种提高安全性能的硬件架构设计。
+TrustZone是一种提高安全性能的硬件架构设计\cite{trustZone-p1}。
 它提升了CPU，内存和其他部件的安全能力。
-一个支持TrustZone的CPU处理器，可以在四种特权等级下执行指令(EL0-EL3)。
+一个支持TrustZone的CPU处理器，可以在四种特权等级下执行指令(EL0-EL3)\cite{trustZone-p2}。
 同时TrustZone通过硬件TrustedFirmware(TF)划分了普通世界(Normal World)和安全世界(Secure World)。
 EL3拥有最高权限，也被称为monitor mode，可以通过运行ARM Trusted Firmware (TF) 来进行Normal World和Secure World之间的切换。
-每个世界中都分别管理自己的地址空间和操作系统，
+每个世界中都分别管理自己的地址空间和操作系统\cite{trustZone-p2}，
 在Secure World中所有App都是运行在可信的操作系统(Trusted OS)上。
 在Normal World中所有的App都运行在普通操作系统中。
 EL2级别的指令是为每个世界中虚拟机提供的权限，EL1是操作系统内核权限，EL0是用户代码权限。
@@ -37,8 +37,7 @@ EL2级别的指令是为每个世界中虚拟机提供的权限，EL1是操作�
     \caption{TrustZone基本权限设计}
     \label{fig:trustzone}
 \end{figure}
-
-(图~\ref{fig:trustzone})展示了TrustZone对Secure World和Normal World的划分，
+(图~\ref{fig:trustzone})展示了TrustZone对Secure World和Normal World的划分\cite{trustZone-p5}，
 每个CPU可以通过L3级别(monitor mode)的指令secure monitor call (smc)来进行
 Secure World和Normal World之间的切换。图中展现了操作系统EL1和应用EL0两种权限，
 
@@ -71,20 +70,20 @@ Secure World和Normal World之间的切换。图中展现了操作系统EL1和�
     \label{fig:tzasc}
 \end{figure}
     
-其次，TrustZone通过硬件层面上的隔离来防止Secure World中的App和OS被恶意代码攻击。
+其次，TrustZone通过硬件层面上的隔离来防止Secure World中的App和OS被恶意代码攻击\cite{trustZone-p5}。
 TrustZone直接将物理内存划分为两部分，其中一部分只能被Secure World访问。
 这种物理上的强制隔离主要通过地址空间控制器TrustZone Address Space Controller(TZASC)
 来实现。TZASC主要作用于总线和内存之间。
-(图~\ref{fig:tzasc})展示了TrustZone Address Space Controller(TZASC)
+(图~\ref{fig:tzasc})展示了TrustZone Address Space Controller(TZASC)\cite{trustZone-p3}
 的基本设计的最原始模式。最原始的TZASC只包含两种内存访问权限non-secure access(NS = 1)
 和secure access(NS = 0)。
 一个处于secure模式下的CPU可以访问non-secure和secure的内存，
 而在non-secure模式下的CPU仅可以访问non-secure的内存。
-TZASC现在已经有TZC-380，TZC-400等版本
+TZASC现在已经有TZC-380，TZC-400等版本\cite{trustZone-p3}
 较新的版本TZC-400，CPU，GPU，DMA等设备都会在硬件上被分配一个bus-master id，
 每次访存操作都会附上这个id，这个id可以被用来分配固定物理内存和访问权限，以此做到
 物理内存的隔离。
-TZASC是使用这种机制来从空间上保证Secure World中的内存不会被其他CPU访问。
+TZASC是使用这种机制来从空间上保证Secure World中的内存不会被其他CPU访问\cite{sanctuary-p1}。
 
 
 
@@ -93,18 +92,18 @@ TZASC是使用这种机制来从空间上保证Secure World中的内存不会被
 \begin{itemize}
     \item
     在可信执行环境中，可信的应用(TA)之间的隔离程度较弱，
-    一旦一个TA有恶意代码或被攻击，其他应用程序中的敏感数据也会被攻击。
+    一旦一个TA有恶意代码或被攻击，其他应用程序中的敏感数据也会被攻击\cite{trustZone-p6}。
     \item
     在Secure World中的TCB随着App的增多会不断扩展。
     \item 
-    一旦黑客可以攻击到Secure World中，收益巨大，使的Secure World成为高价值的攻击目标。
+    一旦黑客可以攻击到Secure World中，收益巨大，使的Secure World成为高价值的攻击目标\cite{sanctuary-p1}。
     \item
     在TrustZone的设计中，一个带有敏感数据(需要被保护)的应用程序(Sensitive App)必须也是一个可以信任的应用程序(Trusted App)，
     这样才能够放入Secure World中。
     一个应用程序成为可信应用程序需要运营商和软件开发者相互信任，
     同时需要做大量的检查工作。对于小的开发者来说，
     与vendor建立信任关系并且验证代码是一件费时费力的事情。
-    对于vendor来说并不一定就能完全发现可信应用中的恶意代码或者可能被其他人利用的漏洞。
+    对于vendor来说并不一定就能完全发现可信应用中的恶意代码或者可能被其他人利用的漏洞\cite{sanctuary-p1}。
 \end{itemize}
 
 
@@ -114,7 +113,7 @@ TZASC是使用这种机制来从空间上保证Secure World中的内存不会被
 \section{SANCTUARY}
 \subsection{基本介绍}
 \paragraph{模型改良}
-SANCTUARY是在TrustZone的基础上为上面的不足提出了合理的解决方案。 
+SANCTUARY\cite{sanctuary-p1}是在TrustZone的基础上为上面的不足提出了合理的解决方案。 
 SANCTUARY区分了可信应用程序(Trusted App)和敏感应用程序(Sensitive App)，
 并把敏感应用程序列入可能有害的威胁模型中。
 通在Normal World和Secure World之间设立一个新的区间Sanctuary，如(图~\ref{fig:sanctuary})，
@@ -129,7 +128,7 @@ Sanctuary建立较强的隔离机制，空间上的隔离包括使用TZC-400内�
 采用与TrustZone相似的方式强制隔离物理内存，Sanctuary的CPU只能访问自己的物理内存，
 不能访问Secure World和Normal World中的内存对于每一个Sanctuary实例单独分配一个独立的CPU资源。
 通过避免使用共享缓存，来防止独立内存数据的丢失。
-时间上的隔离，包括每次都会从可信的固件(Trusted Firmware)中启动为Sanctuary分配的CPU，
+时间上的隔离，包括每次都会从可信的固件(Trusted Firmware)中启动为Sanctuary分配的CPU\cite{trustZone-p1}，
 在同一时刻内一个Sanctuary环境中只会运行一个应用程序(Sanctuary App)，
 并且在程序执行结束退出后，会清空其之前使用的内存和缓存。
 
@@ -206,22 +205,22 @@ SANCTUARY通过本地的验证和远程的验证（Remote attestation）本地�
 Sanctuary环境也会创建失败，由此保证执行代码的完整性。
 
 \paragraph{代码数据隔离性}
-SANCTUARY通过TrustZone自身的特性来保证内存的分离。一旦SANCTUARY内存上锁，除了
+SANCTUARY\cite{trustZone-p1}通过TrustZone自身的特性来保证内存的分离。一旦SANCTUARY内存上锁，除了
 SANCTUARY的CPU，其他核均不能对这段数据进行访问。当Sanctuary销毁时，内存数据都会被重置
 不会被下一个用此段内存的应用获取到。
 
 \paragraph{存储安全}
 SANCTUARY通过key来加密数据，key是通过计算完整SA的哈希值得到的，只有没有被修改过的
-Sanctuary App在可以通过key解密得到正确的数据。SANCTUARY运行SA将数据保存到指定的内存中
+Sanctuary\cite{trustZone-p1} App在可以通过key解密得到正确的数据。SANCTUARY运行SA将数据保存到指定的内存中
 由此保证数据的可靠性。
 
 \paragraph{缓存攻击}
-假设缓存在ARM上由两种，一种时L1，由CPU独享。一种时L2，由多个CPU共享
-对于L1Cache的直接攻击，SANCTUARY通过只运行在一个核内，且在Sanctuary销毁时，清空缓存来防止。
-对与L2Cache的直接攻击，可以直接不使用L2缓存，通过outer non-cacheable直接从内存中获取数据，
+假设缓存在ARM上由两种，一种时L1，由CPU独享。一种是L2，由多个CPU共享
+对于L1Cache的直接攻击\cite{trustZone-p3}，SANCTUARY通过只运行在一个核内，且在Sanctuary销毁时，清空缓存来防止。
+对与L2Cache的直接攻击\cite{trustZone-p2}，可以直接不使用L2缓存，通过outer non-cacheable直接从内存中获取数据，
 也可以依靠意见过滤掉带有特定标记的L2缓存。
-对于L1Cache的旁路攻击，依然可以通过将Sanctuary只运行在一个核上来进行预防。
-对于L2Cache的旁路攻击，只能通过不使用L2缓存在组织。
+对于L1Cache的旁路攻击\cite{trustZone-p3}，依然可以通过将Sanctuary只运行在一个核上来进行预防。
+对于L2Cache的旁路攻击\cite{trustZone-p2}，只能通过不使用L2缓存在组织。
 
 \paragraph{恶意的Sanctuary App}
 Sanctuary的CPU只能访问自己的内存。并且只运行在单一CPU上，因此不能对Secure World和其他
