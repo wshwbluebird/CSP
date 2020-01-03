@@ -91,5 +91,15 @@ libOS化的应用程序放入enclave中所带来的开销是可以接受的。
 %----------------------------------------------------------------------------------------
 \subsection{RISC-V KeyStone}
 %----------------------------------------------------------------------------------------
-TODO
-
+\paragraph{RISC-V}
+RISC-V 是一个基于精简指令集（RISC）原则的开源指令集架构（ISA），简易解释为开源软件运动相对应的一种“开源硬件”。该项目2010年始于加州大学柏克莱分校，但许多贡献者是该大学以外的志愿者和行业工作者。
+与大多数指令集相比，RISC-V指令集可以自由地用于任何目的，允许任何人设计、制造和销售RISC-V芯片和软件而不必支付给任何公司专利费。
+RISC-V指令集的设计考虑了小型、快速、低功耗的现实情况来实做，但并没有对特定的微架构做过度的设计。
+\paragraph{Physical Memory Protection}
+PMP（Physical Memory Protection）RISC-V 提供的物理内存隔离机制。
+RISC-V 拥有16个 PMPADDR 寄存器和4个 PMPCFG 寄存器（64位下只使用其中两个）。地址寄存器和配置寄存器共同决定了16个 PMP region。
+PMP region 可以视为 enclave，每个线程只能访问自己所拥有的 region，以此实现物理内存的隔离。
+\paragraph{Keystone}
+Keystone 是第一款构建定制 TEE 的开源框架。在 Keystone 中，enclave 使用 PMP 进行隔离，并可选择对 PMP region 做 cache line binding，每个 region 只能访问特定的一个或多个 cache line，以此防御 cache side-channel attack。
+Keystone 还自带了一个可信的 RunTime。这个 RunTime 运行在 Supervisor-mode，可以动态增减 enclave 占用的内存大小，并且可以处理 enclave 的 page fault。
+Keystone 在 RISC-V 的基础上提供上述的安全扩展，可以使应用快速、安全地部署在 RISC-V 平台之上。
