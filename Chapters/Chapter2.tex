@@ -27,7 +27,7 @@ EL3拥有最高权限，也被称为monitor mode，可以通过运行ARM Trusted
 每个世界中都分别管理自己的地址空间和操作系统，
 在Secure World中所有App都是运行在可信的操作系统(Trusted OS)上。
 在Normal World中所有的App都运行在普通操作系统中。
-L2级别的指令是为每个世界中虚拟机提供的权限，L1是操作系统内核权限，L0是用户代码权限。
+EL2级别的指令是为每个世界中虚拟机提供的权限，EL1是操作系统内核权限，EL0是用户代码权限。
 
 
 \begin{figure}
