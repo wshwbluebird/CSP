@@ -20,7 +20,7 @@ Intel SGX技术提供了一系列的硬件特性，帮助保护应用免受操�
 比如应用不能在enclave中调用syscall，而是通过一层shielding code去访问syscall，通过sheld层，syscall的结果
 在返回给应用之前会被验证，保证结果的安全可靠，防止host的操作系统攻击enclave中的应用。因此，普遍认为
 应用程序适配SGX需要付出大量的努力。
-前人的工作 Haven \cite{186173}展示了可以利用一个 library OS 把没有修改过的应用放到SGX中去。
+前人的工作 Haven \cite{Haven}展示了可以利用一个 library OS \cite{libos}把没有修改过的应用放到SGX中去。
 但是这需要付出性能上的 overhead 和TCB的扩大的代价。
 不过，Graphene-SGX验证了实际上利用library OS带来的overhead并没有前人所称的那么大，
 利用Graphene-SGX可以快速的把现有的应用放到enclave中去运行，并且没有很大的开销。
@@ -52,7 +52,7 @@ Graphene-SGX只信任CPU，还有enclave内部的代码（shielding module、boo
 还必须信任Intel的SGX SDK中的aesmd工具，该工具验证enclave签名中的属性并批准enclave的创建。
 这是现在利用SGX技术的所有工作都必须信任的。
 除此之外，虽然Graphene-SGX使用且仅使用了Intel SGX SDK 中的驱动程序，但是并不信任他。
-
+在经过远程校验之后，enclave可以被认为是可信的\cite{attestation}。
 \section{保证的安全性质和能够防御的一些具体攻击}
 \begin{figure}
     \centering
@@ -127,7 +127,7 @@ Graphene-SGX对性能的影响不大。对\textbf{Apache}来说，由于Apache�
 
 \section{不足}
 \paragraph{无法防御一些攻击}
-Denial of service,sidechannels,controlled-channel attacks这些攻击是目前所有的 SGX 平台都难以防御的，Graphene-SGX同样无法处理。
+Denial of service,sidechannels,controlled-channel attacks\cite{controlledchannel}这些攻击是目前所有的 SGX 平台都难以防御的，Graphene-SGX同样无法处理。
 \paragraph{不能保证可用性}
 像其他的利用SGX的平台一样，
 Graphene-SGX可以保证代码在enclave内部的安全执行，

@@ -29,7 +29,7 @@
     \item ARM Pointer Authentication 2017年
     \item Intel Control-flow Enforcement Technology 2018年
 \end{itemize}
-近年来，TEE 可信执行环境受到了学者们的关注。
+近年来，TEE \cite{TEE}可信执行环境受到了学者们的关注。
 在云服务器逐渐被用户接纳的当下，
 如何让用户放心大胆的将自己的敏感数据与敏感计算放到云上去运行成为了难题。
 TEE 的出现正能回答这个问题。
@@ -74,15 +74,15 @@ EL3被称为 monitor mode\cite{trustZone-p3}，
 encalve中的程序有一些操作不被允许（例如不能使用syscall），
 因此，已有的应用程序想要利用 SGX 带来的安全性，
 需要付出大量的重构努力。
-OSDI 14 的一个叫 Haven 的工作,提出了带壳执行，证明了
+OSDI 14 的一个叫 Haven \cite{Haven} 的工作,提出了带壳执行，证明了
 可以将一个已有的二进制应用程序，
-通过 libOS 的方式，整个放到enclave中执行。
+通过 libOS \cite{libos}的方式，整个放到enclave中执行。
 通过对libOS的API实现进行修改，将底层实现缩小到更少的系统调用，
 减少了攻击面。
 再对这些与enclave外不受信任的操作系统或 hypervisor 沟通的方法进行校验。
 保证出入enclave的控制流的可靠性，并对传输数据进行加密，
 已有的应用程序就可以通过把整个二进制放入enclave中的方式利用SGX技术提供的安全性。
-\paragraph{Graphene-SGX}Graphene-SGX在 Haven的基础上更进一步，
+\paragraph{Graphene-SGX}Graphene-SGX\cite{graphene}在 Haven的基础上更进一步，
 实现了enclave的安全fork与可信通信，
 极大的提高了现有应用利用SGX技术时的可扩展性。
 同时，由于硬件的发展，Graphene-SGX的测试还证明了
