@@ -90,3 +90,9 @@ Secure Monitor的这些操作，在更高的权限级（M-mode)保证了PMP的�
 	\item [2)]
 	Keystone不能防御DoS攻击，因为其还是需要一个正常运行的OS（配页表、syscall等），恶意的OS可以拒绝服务用户。而Keystone没有修改OS，所以不能防御DoS攻击。
 \end{itemize}
+
+\section{本章小结}
+本章从Keystone的威胁模型出发，详细介绍了其提供的安全保障。
+并且举例介绍了keystone可以防御的具体攻击。
+本章其后分析了keystone的性能，并且就其可扩展性与灵活性做了分析。
+最后，本章简述了keystone的不足之处。
