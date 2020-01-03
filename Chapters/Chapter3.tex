@@ -54,6 +54,14 @@ Graphene-SGX只信任CPU，还有enclave内部的代码（shielding module、boo
 除此之外，虽然Graphene-SGX使用且仅使用了Intel SGX SDK 中的驱动程序，但是并不信任他。
 
 \section{保证的安全性质和能够防御的一些具体攻击}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.35]{Figures/SGX/threatmodel.png}
+    \decoRule
+    \caption{Graphene-SGX的威胁模型}
+    \label{fig:Graphene}
+\end{figure}
+
 \subsection{保证的安全性质}
 \paragraph{继承自SGX的性质}
 Graphene-SGX 是对SGX技术的应用，因此，Intel SGX 技术提供的保护也被完全的继承。
@@ -79,11 +87,18 @@ Graphene-SGX 是对SGX技术的应用，因此，Intel SGX 技术提供的保护
 \end{itemize}
 
 \section{性能、可扩展性（scalability）、灵活性等分析}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.35]{Figures/SGX/enclavescale.png}
+    \decoRule
+    \caption{encalve的fork与加密通信}
+    \label{fig:enclavescale}
+\end{figure}
 \subsection{灵活性和可扩展性}
 由于Graphene-SGX可以直接在enclave上运行没有经过修改的Linux程序，因此，通过Graphene-SGX可以快速的
 帮助现有应用利用到SGX的enclave这一特性，提高已有应用的安全性，而同时不需要付出太大的开发成本。
 
-在可扩展性方面，Graphene-SGX还提供了enclave的fork操作，用户可以简单的通过一个enclave环境，
+在可扩展性方面，Graphene-SGX还提供了enclave的fork操作如图\ref{fig:enclavescale}所示，用户可以简单的通过一个enclave环境，
 fork出一个新的子enclave环境。
 同时 Graphene-SGX 还提供了两个enclave之间的加密通信，互相验证的功能。
 因此，多进程的应用程序可以有效的保留多进程抽象的同时利用SGX技术带来的安全保证。
@@ -119,8 +134,16 @@ Graphene-SGX可以保证代码在enclave内部的安全执行，
 但是无法保证enclave本身的可用性。
 例如，恶意的操作系统可以一直不返回到enclave中，或者在某些需要等待的操作中提前返回enclave使受保护的代码执行超出预期。
 
-
-
+\section{本章小结}
+本章主要对 Graphene-SGX 进行了分析。Graphene-SGX 是一个帮助现有应用，
+快速利用 Intel SGX 技术保护数据与正确执行的工作。
+与其前作 Haven(OSDI14) 相比，Graphene-SGX 得益于SGX硬件的进步，
+在真实的硬件上评估了shield-exection 的性能，
+论证了将整个应用二进制通过libOS的方式直接放入 enclave中执行的可行性。
+同时实现了 enclave 的安全fork等操作，
+同时实现了 encalve之间的加密通信。
+通过不断的努力，将现有应用不加修改的放入enclave中执行已经成为了可能，
+已有应用通过 libOS 能快速的获得 SGX技术提供的数据与执行的安全保障。
 %----------------------------------------------------------------------------------------
 %	SECTION 1
 %----------------------------------------------------------------------------------------
